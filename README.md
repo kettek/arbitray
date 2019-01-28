@@ -26,3 +26,8 @@ The programs section is an array of objects that define a runnable entry in the 
   * `program` -- The location to the program to run.
   * `arguments` -- An array of arguments to pass to the program.
   * `options` -- I forget.
+
+## FAQ
+
+  * 1. Wouldn't this be better in Go?
+    * _Yes._
