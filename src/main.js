@@ -2,10 +2,10 @@ const Module    = require('module')
 const path      = require('path')
 const fs        = require('fs')
 const Arbitray  = require('./arbitray')
-const wasw      = require('windows-api-show-window')
 
 // Hide console window on Windows ASAP.
 if (process.platform === 'win32' && process.env.NODE_ENV !== 'production') {
+  const wasw      = require('windows-api-show-window')
   wasw.hideCurrentProcessWindow()
 }
 
