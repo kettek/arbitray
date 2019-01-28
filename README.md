@@ -1,6 +1,6 @@
 # Arbitray -- The Arbitrary Process Manager
 
-![Screenshot](screenshot-win10.png?raw=true)
+![Screenshot](screenshot-win10.PNG?raw=true)
 
 **Arbitray** is a wonderfully named system tray application that you, the almighty user, can use to manage applications.
 
