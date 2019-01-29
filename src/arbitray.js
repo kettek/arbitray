@@ -282,7 +282,7 @@ class Arbitray {
       // Built-in Action
       if (action.seq_id >= this.Config.programs.length) {
         if (action.item.title == "💀 Quit") {
-          this.Destroy()
+          this.Quit()
         } else if (action.item.title == "📜 Logs") {
           opn( path.join(process.cwd(), 'logs') )
         } else if (action.item.title == "✎ Config") {
@@ -291,12 +291,36 @@ class Arbitray {
       }
     })
   }
+
+  /**
+   * Cleanup then Desroy.
+   */
+  Quit() {
+    this.Cleanup(() => {
+      this.Destroy()
+    })
+  }
   /**
    * Destroy.
    */
   Destroy() {
     this._systray.kill(true)
     this.log.info("Arbitray closed.")
+  }
+  /**
+   * Request each process to close, optionally calling cb once done.
+   */
+  Cleanup(cb) {
+    this._processes.forEach((process, index) => {
+      if (cb) {
+        this._processes[index].on('close', () => {
+          if (this._processes.filter(item => item).length == 0) {
+            cb()
+          }
+        })
+      }
+      this.stopProcess(index)
+    })
   }
 }
 
