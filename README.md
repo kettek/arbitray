@@ -31,3 +31,5 @@ The programs section is an array of objects that define a runnable entry in the 
 
   * 1. Wouldn't this be better in Go?
     * _Yes._
+  * 2. What platforms are supported?
+    * Tested is Mac OS Mojave and Windows 10. Both 64-bit. Linux might work but I don't think so due to `pkg` not being able to pack native binaries. Additionally, when I ran arbitray from source, nothing showed up in stalonetray.
