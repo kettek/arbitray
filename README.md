@@ -25,7 +25,7 @@ The programs section is an array of objects that define a runnable entry in the 
   * `tooltip` -- The tooltip to use in the tray.
   * `program` -- The location to the program to run.
   * `arguments` -- An array of arguments to pass to the program.
-  * `options` -- I forget.
+  * `options` -- Any of the options listed [here](https://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options).
 
 ## FAQ
 
