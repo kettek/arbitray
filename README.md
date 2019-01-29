@@ -16,7 +16,8 @@ So, as is undeniably obvious, it is the perfect solution for managing random cra
 ## Configuration File
 Arbitray will automatically create an `arbitray.json` file in the working directory that the arbitray executable is started from. This can be used as a starting point for your own configuration.
 
-Although more will inevitably be added in the future, at the moment the only important section is `programs`.
+### useSpawn
+This boolean value specifies if [spawn](https://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options) should be used. If not specified, [exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback) will be used.
 
 ### programs
 The programs section is an array of objects that define a runnable entry in the system tray. Each entry can have the following properties:

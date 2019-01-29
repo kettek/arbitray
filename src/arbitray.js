@@ -122,7 +122,7 @@ class Arbitray {
       ...config
     }
     // Iterate through programs to ensure needed fields are populated.
-    this._config.programs.map((entry, index) => {
+    this._config.programs = this._config.programs.map((entry, index) => {
       if (!entry.program) {
         return
       }
@@ -131,6 +131,14 @@ class Arbitray {
       }
       if (!entry.tooltip) {
         entry.tooltip = "Run " + entry.title;
+      }
+      if (entry.options) {
+        if (entry.options.cwd) {
+          entry.options.cwd = path.resolve(entry.options.cwd)
+        }
+      }
+      if (!entry.arguments) {
+        entry.arguments = []
       }
       return entry
     })
@@ -152,14 +160,25 @@ class Arbitray {
   startProcess(index) {
     if (index >= this.Config.programs.length) return false
     if (this._processes[index]) return false
-    this._processes[index] = child_process.spawn(
-      this.Config.programs[index].program,
-      this.Config.programs[index].arguments,
-      {
-        ...{ detached: false, windowsHide: true, },
-        ...(this.Config.programs[index].options ? this.Config.programs[index].options : {})
-      }
-    )
+    if (this.Config.programs[index].useSpawn) {
+      this._processes[index] = child_process.spawn(
+        this.Config.programs[index].program,
+        this.Config.programs[index].arguments,
+        {
+          ...{ detached: false, windowsHide: true, },
+          ...(this.Config.programs[index].options ? this.Config.programs[index].options : {})
+        }
+      )
+    } else {
+      this._processes[index] = child_process.exec(
+        '"' + this.Config.programs[index].program + '" ' + this.Config.programs[index].arguments.join(' '),
+        {
+          ...{ detached: false, windowsHide: true, },
+          ...(this.Config.programs[index].options ? this.Config.programs[index].options : {})
+        }
+      )
+    }
+
     this.log.info(`Spawning "${this.Config.programs[index].title}"`)
     // Create logger for program
     this._logs[index] = bunyan.createLogger({
@@ -219,7 +238,11 @@ class Arbitray {
   stopProcess(index) {
     if (index >= this.Config.programs.length) return false
     if (!this._processes[index]) return false
-    this._processes[index].kill()
+    if (process.platform === 'win32') {
+      child_process.spawn('taskkill', ["/pid", this._processes[index].pid, '/f', '/t'])
+    } else {
+      this._processes[index].kill()
+    }
     // 'close' handler will clean up our state.
   }
   updateTrayProcess(index, opts) {
@@ -334,7 +357,7 @@ class Arbitray {
     processes.forEach((process, index) => {
       if (cb) {
         processes[index].on('close', () => {
-          if (processes.filter(item => item).length == 0) {
+          if (this._processes.filter(item => item).length == 0) {
             cb()
           }
         })
