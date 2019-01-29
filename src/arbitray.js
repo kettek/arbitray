@@ -173,6 +173,19 @@ class Arbitray {
           })
         },
         {
+          level: 'warn',
+          stream: {
+            write: data => {
+              data = JSON.parse(data)
+              if (data.level == bunyan.WARN) {
+                dialog.warn(data.msg, data.name)
+              } else {
+                dialog.err(data.msg, data.name)
+              }
+            }
+          }
+        },
+        {
           type: 'rotating-file',
           path: path.join(process.cwd(), 'logs', this.Config.programs[index].title+'.log'),
           period: '1d',
@@ -281,12 +294,14 @@ class Arbitray {
       }
       // Built-in Action
       if (action.seq_id >= this.Config.programs.length) {
-        if (action.item.title == "💀 Quit") {
-          this.Quit()
-        } else if (action.item.title == "📜 Logs") {
-          opn( path.join(process.cwd(), 'logs') )
-        } else if (action.item.title == "✎ Config") {
+        let id = action.seq_id - this.Config.programs.length
+        console.log(id)
+        if (id == 0) {
           opn( path.join(process.cwd(), 'arbitray.json') )
+        } else if (id == 1) {
+          opn( path.join(process.cwd(), 'logs') )
+        } else if (id == 2) {
+          this.Quit()
         }
       }
     })
@@ -311,10 +326,15 @@ class Arbitray {
    * Request each process to close, optionally calling cb once done.
    */
   Cleanup(cb) {
-    this._processes.forEach((process, index) => {
+    let processes = this._processes.filter(item => item)
+    if (processes.length == 0) {
+      cb()
+      return
+    }
+    processes.forEach((process, index) => {
       if (cb) {
-        this._processes[index].on('close', () => {
-          if (this._processes.filter(item => item).length == 0) {
+        processes[index].on('close', () => {
+          if (processes.filter(item => item).length == 0) {
             cb()
           }
         })
