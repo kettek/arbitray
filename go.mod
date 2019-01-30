@@ -1,7 +1,7 @@
-//module github.com/kettek/arbitray-go
-module main
+module github.com/kettek/arbitray-go
 
 require (
+	github.com/cratonica/2goarray v0.0.0-20181003131821-6736de72d774 // indirect
 	github.com/gen2brain/dlgs v0.0.0-20180629122906-342edb4c68c1
 	github.com/getlantern/context v0.0.0-20190109183933-c447772a6520 // indirect
 	github.com/getlantern/errors v0.0.0-20180829142810-e24b7f4ff7c7 // indirect
