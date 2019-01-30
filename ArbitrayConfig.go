@@ -3,6 +3,7 @@ package main
 import (
   "os"
   "path/filepath"
+  "strings"
   "path"
   "log"
   "fmt"
@@ -47,11 +48,11 @@ func (c *ArbitrayConfig) Load() (err error) {
     log.Fatal(err)
   }
 
-  log.Print("Apparently loaded a file.")
-
   // Read JSON into Config.
   bytes, _ := ioutil.ReadAll(file)
   json.Unmarshal([]byte(bytes), &c)
+  // Ensure some sanity.
+  c.Ensure()
   return
 }
 
@@ -73,6 +74,27 @@ func (c *ArbitrayConfig) Save() (err error) {
   // Write it out.
   if err = ioutil.WriteFile(filepath, out, 0644); err != nil {
     return err
+  }
+  return
+}
+
+func (c *ArbitrayConfig) Ensure() (err error) {
+  for _, program := range c.Programs {
+    if program.Program == "" {
+      continue
+    }
+    if program.Title == "" {
+      _, exe := filepath.Split(program.Program)
+
+      if n := strings.LastIndexByte(exe, '.'); n > 0 {
+        program.Title = exe[:n]
+      } else {
+        program.Title = exe
+      }
+    }
+    if program.Tooltip == "" {
+      program.Tooltip = fmt.Sprintf("Run %s", program.Title)
+    }
   }
   return
 }
