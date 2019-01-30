@@ -3,6 +3,7 @@ package main
 import (
   "github.com/getlantern/systray"
   "os/exec"
+  "log"
 )
 
 type ArbitrayProgram struct {
@@ -15,4 +16,5 @@ type ArbitrayProgram struct {
   Cmd *exec.Cmd `json:"-"`
   CloseChan chan bool `json:"-"`
   KillChan chan bool `json:"-"`
+  Log *log.Logger `json:"-"`
 }

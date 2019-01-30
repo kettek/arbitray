@@ -2,14 +2,15 @@ package main
 
 import (
   "fmt"
+  "github.com/kettek/arbitray-go/icon"
   "github.com/getlantern/systray"
-  "github.com/getlantern/systray/example/icon"
   "github.com/gen2brain/dlgs"
   "sync"
   "io"
   "os"
   "os/exec"
   "bufio"
+  "log"
 )
 
 type Arbitray struct {
@@ -19,6 +20,7 @@ type Arbitray struct {
 
 func (a *Arbitray) Init() (err error) {
   a.config.Load()
+  os.Mkdir("logs", os.ModeDir)
   systray.Run(a.onReady, a.onQuit)
   return
 }
@@ -33,8 +35,9 @@ func (a *Arbitray) onReady() {
     program.MenuItem = systray.AddMenuItem(program.Title, program.Tooltip)
     program.CloseChan = make(chan bool)
     program.KillChan = make(chan bool)
-    // This seems heavy to have go routines for each entry...
-    go func() {
+    program.Log = log.New(nil, "", log.LstdFlags)
+    // This seems heavy to have go routines handling each entry's input...
+    go func(program *ArbitrayProgram) {
       for {
         select {
         case <-program.MenuItem.ClickedCh:
@@ -44,10 +47,9 @@ func (a *Arbitray) onReady() {
           } else {
             program.KillChan <- true
           }
-          fmt.Printf("%s clicked.\n", program.Title)
         }
       }
-    }()
+    }(program)
   }
   systray.AddSeparator()
   // Add our base items.
@@ -77,8 +79,16 @@ func (a *Arbitray) startProgram(p *ArbitrayProgram) {
     p.MenuItem.Uncheck()
     a.waitGroup.Done()
   }()
-
   p.MenuItem.Check()
+
+  // Create our loggers.
+  logFile, err := os.OpenFile(fmt.Sprintf("%s/%s.log", "logs", p.Title), os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
+  if err != nil {
+    log.Fatal(err)
+  }
+  defer logFile.Close()
+  p.Log.SetOutput(logFile)
+
   // Set up our command.
   p.Cmd = exec.Command(p.Program)
 
@@ -122,12 +132,16 @@ func (a *Arbitray) startProgram(p *ArbitrayProgram) {
     }
   }()
   // Run our command.
+  fmt.Printf("[%s]: %s starting.\n", "Arbitray", p.Title)
   if err := p.Cmd.Start(); err != nil {
     dlgs.Error("Arbitray", err.Error())
+    fmt.Printf("[%s] %s\n", p.Title, err.Error())
+    p.Log.Printf("Error: %s\n", err.Error())
   }
   go func() {
     if err := p.Cmd.Wait(); err != nil {
-      fmt.Printf("%s closed with: %s\n", p.Title, err.Error())
+      fmt.Printf("[%s]: %s\n", p.Title, err.Error())
+      p.Log.Printf("Error: %s\n", err.Error())
       //dlgs.Error("Arbitray", err.Error())
     }
     p.CloseChan <- true
@@ -137,13 +151,16 @@ func (a *Arbitray) startProgram(p *ArbitrayProgram) {
     for {
       select {
       case msg := <-stdoutChan:
-        fmt.Printf("[%s] %s\n", p.Title, msg)
+        fmt.Printf("[%s] %s", p.Title, msg)
+        p.Log.Println(msg)
       case msg := <-stderrChan:
-        fmt.Printf("[%s] %s\n", p.Title, msg)
+        fmt.Printf("[%s] %s", p.Title, msg)
+        p.Log.Printf("Error: %s", msg)
       case <-p.KillChan:
         p.Cmd.Process.Signal(os.Kill)
       case <-p.CloseChan:
         break ListenLoop
       }
     }
+  fmt.Printf("[%s]: %s finished.\n", "Arbitray", p.Title)
 }
