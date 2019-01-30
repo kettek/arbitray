@@ -11,6 +11,8 @@ import (
   "os/exec"
   "bufio"
   "log"
+  "path"
+  "path/filepath"
 )
 
 type Arbitray struct {
@@ -53,7 +55,31 @@ func (a *Arbitray) onReady() {
   }
   systray.AddSeparator()
   // Add our base items.
-  mQuit := systray.AddMenuItem("Quit", "Quit Arbitray")
+  mConfig := systray.AddMenuItem("✎ Config", "Config Arbitray")
+  go func() {
+    <-mConfig.ClickedCh
+    // Get absolute location of arbitray. FIXME: This should be CWD.
+    var dir string
+    var err error
+    if dir, err = filepath.Abs(filepath.Dir(os.Args[0])); err != nil {
+      log.Fatal(err)
+    }
+    open(path.Join(dir, "arbitray.json"))
+  }()
+
+  mLogs := systray.AddMenuItem("📜 Logs", "Logs Arbitray")
+  go func() {
+    <-mLogs.ClickedCh
+    var dir string
+    var err error
+    // Get absolute location of arbitray. FIXME: This should be CWD.
+    if dir, err = filepath.Abs(filepath.Dir(os.Args[0])); err != nil {
+      log.Fatal(err)
+    }
+    open(path.Join(dir, "logs"))
+  }()
+
+  mQuit := systray.AddMenuItem("💀 Quit", "Quit Arbitray")
   go func() {
     <-mQuit.ClickedCh
     a.Quit()
