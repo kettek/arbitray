@@ -39,6 +39,7 @@ func (p *ArbitrayProgram) CreateCommand() (err error) {
   if p.Options.Hide {
     p.Cmd.SysProcAttr = &syscall.SysProcAttr{ HideWindow: true }
   }
+  return
 }
 
 func open(path string) error {
