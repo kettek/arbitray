@@ -169,6 +169,10 @@ func (a *Arbitray) startProgram(p *ArbitrayProgram) {
   }
   p.Cmd.Args = p.Arguments
 
+  if p.Options.Hide {
+    p.Cmd.SysProcAttr = &syscall.SysProcAttr{ HideWindow: true }
+  }
+
   // stdout
   stdoutChan := make(chan string)
   go func() {
