@@ -41,10 +41,15 @@ func (a *Arbitray) Init() (err error) {
   a.config.Load()
 
   // Set up logging.
-  if err = os.Mkdir("logs", 0755); err != nil {
-    if (err.(*os.PathError)).Err != syscall.EEXIST {
-      dlgs.Error("Arbitray", err.Error())
-      log.Fatalf("Fatal Error: %v", err)
+  if _, err := os.Stat("logs"); err != nil {
+    if os.IsNotExist(err) {
+      if err = os.Mkdir("logs", 0755); err != nil {
+        dlgs.Error("Arbitray", fmt.Sprintf("What: %d", (err.(*os.PathError)).Err))
+        if (err.(*os.PathError)).Err != syscall.EEXIST {
+          dlgs.Error("Arbitray", err.Error())
+          log.Fatalf("Fatal Error: %v", err)
+        }
+      }
     }
   }
   // Create Arbitray's log
@@ -199,7 +204,6 @@ func (a *Arbitray) startProgram(p *ArbitrayProgram) {
     if err := p.Cmd.Wait(); err != nil {
       a.Log.Printf("[%s] Error: %s\n", p.Title, err.Error())
       p.Log.Printf("Error: %s\n", err.Error())
-      dlgs.Error("Arbitray", err.Error())
     }
     p.CloseChan <- true
   }()

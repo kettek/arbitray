@@ -3,7 +3,9 @@
 package main
 
 import (
+  "os"
   "os/exec"
+  "path/filepath"
 )
 
 func (c *ArbitrayConfig) generateDefault() (err error) {
