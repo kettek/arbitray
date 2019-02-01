@@ -1,4 +1,4 @@
-// +build macos
+// +build darwin
 
 package main
 
@@ -16,5 +16,5 @@ func (c *ArbitrayConfig) generateDefault() (err error) {
 }
 
 func open(path string) error {
-  return exec.Command("open", [path]).Start()
+  return exec.Command("open", []string{path}...).Start()
 }
