@@ -7,11 +7,9 @@ import (
   "sync"
   "io"
   "os"
-  "os/exec"
   "syscall"
   "bufio"
   "log"
-  "path/filepath"
 )
 
 type Arbitray struct {
@@ -163,15 +161,7 @@ func (a *Arbitray) startProgram(p *ArbitrayProgram) {
   p.Log.SetOutput(logFile)
 
   // Set up our command.
-  p.Cmd = exec.Command(p.Program)
-  if dir := filepath.Dir(p.Program); dir != "." {
-    p.Cmd.Dir = dir
-  }
-  p.Cmd.Args = p.Arguments
-
-  if p.Options.Hide {
-    p.Cmd.SysProcAttr = &syscall.SysProcAttr{ HideWindow: true }
-  }
+  p.CreateCommand()
 
   // stdout
   stdoutChan := make(chan string)

@@ -58,6 +58,18 @@ func (a *Arbitray) platformInit() (err error) {
   return
 }
 
+func (p *ArbitrayProgram) CreateCommand() (err error) {
+  p.Cmd = exec.Command(p.Program)
+  if dir := filepath.Dir(p.Program); dir != "." {
+    p.Cmd.Dir = dir
+  }
+  p.Cmd.Args = p.Arguments
+
+  if p.Options.Hide {
+  }
+  return
+}
+
 func open(path string) error {
   return exec.Command("open", []string{path}...).Start()
 }

@@ -29,6 +29,18 @@ func (a *Arbitray) platformInit() (err error) {
   return
 }
 
+func (p *ArbitrayProgram) CreateCommand() (err error) {
+  p.Cmd = exec.Command(p.Program)
+  if dir := filepath.Dir(p.Program); dir != "." {
+    p.Cmd.Dir = dir
+  }
+  p.Cmd.Args = p.Arguments
+
+  if p.Options.Hide {
+    p.Cmd.SysProcAttr = &syscall.SysProcAttr{ HideWindow: true }
+  }
+}
+
 func open(path string) error {
   cmd := exec.Command("cmd", []string{"/c", "start", path}...)
   cmd.SysProcAttr = &syscall.SysProcAttr{ HideWindow: true }
