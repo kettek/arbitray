@@ -2,7 +2,6 @@ package main
 
 import (
   "fmt"
-  "github.com/kettek/arbitray-go/icon"
   "github.com/getlantern/systray"
   "github.com/gen2brain/dlgs"
   "sync"
@@ -28,7 +27,7 @@ func (a *Arbitray) Init() (err error) {
 }
 
 func (a *Arbitray) onReady() {
-  systray.SetIcon(icon.Data)
+  systray.SetIcon(iconData)
   systray.SetTitle("Arbitray")
   systray.SetTooltip("Arbitrary Process Launcher")
 
