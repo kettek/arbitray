@@ -40,3 +40,8 @@ func (a *Arbitray) platformInit() (err error) {
 func open(path string) error {
   return exec.Command("open", []string{path}...).Start()
 }
+
+func restart() {
+  cmd := exec.Command(os.Args[:1][0], os.Args[1:]...)
+  cmd.Output()
+}

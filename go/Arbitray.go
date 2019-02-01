@@ -18,6 +18,7 @@ type Arbitray struct {
   waitGroup sync.WaitGroup
   Log *log.Logger
   workingDir string
+  shouldRestart bool
 }
 
 func (a *Arbitray) Init() (err error) {
@@ -103,6 +104,15 @@ func (a *Arbitray) onReady() {
     }
   }()
 
+  mReload := systray.AddMenuItem("↺ Reload", "Reload Arbitray")
+  go func() {
+    for {
+      <-mReload.ClickedCh
+      a.shouldRestart = true
+      a.Quit()
+    }
+  }()
+
   mLogs := systray.AddMenuItem("📜 Logs", "Logs Arbitray")
   go func() {
     for {
@@ -120,10 +130,11 @@ func (a *Arbitray) onReady() {
   }()
 }
 func (a *Arbitray) onQuit() {
-  fmt.Println("Should do cleanup here.")
+  if a.shouldRestart {
+    restart()
+  }
 }
 func (a *Arbitray) Quit() {
-  fmt.Println("Quit, apparently.")
   for index, _ := range a.config.Programs {
     if a.config.Programs[index].MenuItem.Checked() == true {
       a.config.Programs[index].KillChan <- true
