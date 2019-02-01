@@ -17,6 +17,27 @@ func (c *ArbitrayConfig) generateDefault() (err error) {
   return
 }
 
+func getAppDir() (loc string, isApp bool, err error) {
+  var exe string
+  var dir string
+  var base string
+
+  if exe, err = os.Executable(); err != nil {
+    return
+  }
+  // Is an app
+  dir = filepath.Dir(exe)
+  base = filepath.Base(dir)
+  if base == "MacOS" {
+    loc = filepath.Join(dir, "../../")
+    isApp = true
+  } else {
+    loc = exe
+    isApp = false
+  }
+  return
+}
+
 func (a *Arbitray) platformInit() (err error) {
   var exe string
   var dir string
@@ -42,6 +63,13 @@ func open(path string) error {
 }
 
 func restart() {
-  cmd := exec.Command(os.Args[:1][0], os.Args[1:]...)
-  cmd.Output()
+    exe, isApp, _ := getAppDir()
+    if isApp == true {
+      cmd := exec.Command("open", append([]string{"-n", exe}, os.Args[1:]...)...)
+      cmd.Output()
+    } else {
+      cmd := exec.Command(exe, os.Args[1:]...)
+      cmd.Start()
+      cmd.Process.Release()
+    }
 }
