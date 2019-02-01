@@ -36,6 +36,13 @@ func open(path string) error {
   return err
 }
 
+func openDir(path string) error {
+  cmd := exec.Command("cmd", []string{"/c", "start", path+"\\"}...)
+  cmd.SysProcAttr = &syscall.SysProcAttr{ HideWindow: true }
+  _, err := cmd.Output()
+  return err
+}
+
 func restart() {
   cmd := exec.Command("cmd", append([]string{"/c"}, os.Args...)...)
   cmd.SysProcAttr = &syscall.SysProcAttr{ HideWindow: true }

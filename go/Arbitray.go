@@ -11,6 +11,7 @@ import (
   "syscall"
   "bufio"
   "log"
+  "path/filepath"
 )
 
 type Arbitray struct {
@@ -117,7 +118,7 @@ func (a *Arbitray) onReady() {
   go func() {
     for {
       <-mLogs.ClickedCh
-      open("logs")
+      openDir("logs")
     }
   }()
 
@@ -163,6 +164,10 @@ func (a *Arbitray) startProgram(p *ArbitrayProgram) {
 
   // Set up our command.
   p.Cmd = exec.Command(p.Program)
+  if dir := filepath.Dir(p.Program); dir != "." {
+    p.Cmd.Dir = dir
+  }
+  p.Cmd.Args = p.Arguments
 
   // stdout
   stdoutChan := make(chan string)
@@ -229,7 +234,10 @@ func (a *Arbitray) startProgram(p *ArbitrayProgram) {
         fmt.Printf("[%s] %s", p.Title, msg)
         p.Log.Printf("Error: %s", msg)
       case <-p.KillChan:
-        p.Cmd.Process.Signal(os.Kill)
+        if err := p.Cmd.Process.Signal(os.Kill); err != nil {
+          dlgs.Error("Arbitray", fmt.Sprintf("Failed to kill process:\n%v", err))
+          log.Fatalf("Fatal Error: %v", err)
+        }
       case <-p.CloseChan:
         break ListenLoop
       }

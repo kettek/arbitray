@@ -61,6 +61,9 @@ func (a *Arbitray) platformInit() (err error) {
 func open(path string) error {
   return exec.Command("open", []string{path}...).Start()
 }
+func openDir(path string) error {
+  return exec.Command("open", []string{path+"/"}...).Start()
+}
 
 func restart() {
     exe, isApp, _ := getAppDir()
