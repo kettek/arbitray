@@ -19,13 +19,11 @@ along with arbitray.  If not, see <https://www.gnu.org/licenses/>.
 package main
 
 import (
-  "log"
+  "github.com/getlantern/systray"
 )
 
 var arbitray Arbitray
 
 func main() {
-	if err := arbitray.Init(); err != nil {
-    log.Fatal(err)
-  }
+  systray.Run(arbitray.onReady, arbitray.onQuit)
 }

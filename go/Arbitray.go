@@ -11,18 +11,36 @@ import (
   "syscall"
   "bufio"
   "log"
-  "path"
-  "path/filepath"
 )
 
 type Arbitray struct {
   config ArbitrayConfig
   waitGroup sync.WaitGroup
   Log *log.Logger
+  workingDir string
 }
 
 func (a *Arbitray) Init() (err error) {
+  args := os.Args[1:]
+  a.platformInit()
+
+  // Set up our working directory.
+  if err = os.Chdir(a.workingDir); err != nil {
+    dlgs.Error("Arbitray", err.Error())
+    log.Fatalf("Fatal Error: %v", err)
+  }
+
+  if (len(args) == 1) {
+    if err = os.Chdir(args[0]); err != nil {
+      dlgs.Error("Arbitray", err.Error())
+      log.Fatalf("Fatal Error: %v", err)
+    }
+  }
+
+  // Load our config.
   a.config.Load()
+
+  // Set up logging.
   if err = os.Mkdir("logs", 0755); err != nil {
     if (err.(*os.PathError)).Err != syscall.EEXIST {
       dlgs.Error("Arbitray", err.Error())
@@ -33,17 +51,20 @@ func (a *Arbitray) Init() (err error) {
   a.Log = log.New(nil, "", log.LstdFlags)
   logFile, err := os.OpenFile(fmt.Sprintf("%s/%s.log", "logs", "Arbitray"), os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
   if err != nil {
+    dlgs.Error("Arbitray", err.Error())
     log.Fatal(err)
   }
   a.Log.SetOutput(logFile)
-
-  systray.Run(a.onReady, a.onQuit)
   return
 }
 
 func (a *Arbitray) onReady() {
+  if err := arbitray.Init(); err != nil {
+    log.Fatal(err)
+  }
+
   systray.SetIcon(iconData)
-  systray.SetTitle("Arbitray")
+  systray.SetTitle("")
   systray.SetTooltip("Arbitrary Process Launcher")
 
   // Add our processes as menu items.
@@ -71,36 +92,27 @@ func (a *Arbitray) onReady() {
   // Add our base items.
   mConfig := systray.AddMenuItem("✎ Config", "Config Arbitray")
   go func() {
-    <-mConfig.ClickedCh
-    // Get absolute location of arbitray. FIXME: This should be CWD.
-    var dir string
-    var err error
-    if dir, err = filepath.Abs(filepath.Dir(os.Args[0])); err != nil {
-      dlgs.Error("Arbitray", err.Error())
-      a.Log.Printf("[Arbitray] Error: %v\n", err)
+    for {
+      <-mConfig.ClickedCh
+      open("arbitray.json")
     }
-    open(path.Join(dir, "arbitray.json"))
   }()
 
   mLogs := systray.AddMenuItem("📜 Logs", "Logs Arbitray")
   go func() {
-    <-mLogs.ClickedCh
-    var dir string
-    var err error
-    // Get absolute location of arbitray. FIXME: This should be CWD.
-    if dir, err = filepath.Abs(filepath.Dir(os.Args[0])); err != nil {
-      dlgs.Error("Arbitray", err.Error())
-      a.Log.Printf("[Arbitray] Error: %v\n", err)
+    for {
+      <-mLogs.ClickedCh
+      open("logs")
     }
-    open(path.Join(dir, "logs"))
   }()
 
   mQuit := systray.AddMenuItem("💀 Quit", "Quit Arbitray")
   go func() {
-    <-mQuit.ClickedCh
-    a.Quit()
+    for {
+      <-mQuit.ClickedCh
+      a.Quit()
+    }
   }()
-
 }
 func (a *Arbitray) onQuit() {
   fmt.Println("Should do cleanup here.")
@@ -187,7 +199,7 @@ func (a *Arbitray) startProgram(p *ArbitrayProgram) {
     if err := p.Cmd.Wait(); err != nil {
       a.Log.Printf("[%s] Error: %s\n", p.Title, err.Error())
       p.Log.Printf("Error: %s\n", err.Error())
-      //dlgs.Error("Arbitray", err.Error())
+      dlgs.Error("Arbitray", err.Error())
     }
     p.CloseChan <- true
   }()

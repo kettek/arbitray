@@ -16,6 +16,16 @@ func (c *ArbitrayConfig) generateDefault() (err error) {
   return
 }
 
+func (a *Arbitray) platformInit() (err error) {
+  var exe string
+
+  if exe, err = os.Executable(); err != nil {
+    return
+  }
+  a.workingDir = filepath.Dir(exe)
+  return
+}
+
 func open(path string) error {
   return exec.Command("cmd", []string{"/c", "start", path}...).Start()
 }
