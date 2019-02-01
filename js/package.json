@@ -1,0 +1,33 @@
+{
+  "name": "arbitray",
+  "version": "1.0.0",
+  "description": "Arbitrary process manager that lives in the system tray.",
+  "main": "src/main.js",
+  "bin": "src/main.js",
+  "repository": "https://github.com/kettek/arbitray",
+  "author": "Ketchetwahmeegwun T. Southall",
+  "license": "GPL-3.0",
+  "private": false,
+  "dependencies": {
+    "bunyan": "^1.8.12",
+    "bunyan-debug-stream": "^2.0.0",
+    "dialog": "https://github.com/kettek/dialog",
+    "opn": "^5.4.0",
+    "systray": "^1.0.5",
+    "windows-api-show-window": "^0.1.2"
+  },
+  "scripts": {
+    "start": "cross-env NODE_ENV=development node ./",
+    "pkg": "cross-env NODE_ENV=production pkg ."
+  },
+  "devDependencies": {
+    "cross-env": "^5.2.0",
+    "node-gyp": "^3.8.0",
+    "pkg": "^4.3.7"
+  },
+  "pkg": {
+    "assets": [
+      "resources/*"
+    ]
+  }
+}
