@@ -63,7 +63,7 @@ func (p *ArbitrayProgram) CreateCommand() (err error) {
   if dir := filepath.Dir(p.Program); dir != "." {
     p.Cmd.Dir = dir
   }
-  p.Cmd.Args = p.Arguments
+  p.Cmd.Args = append([]string{p.Program}, p.Arguments...)
 
   if p.Options.Hide {
   }
