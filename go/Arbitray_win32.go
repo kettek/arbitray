@@ -6,6 +6,7 @@ import (
   "os"
   "os/exec"
   "path/filepath"
+  "syscall"
 )
 
 func (c *ArbitrayConfig) generateDefault() (err error) {
@@ -29,5 +30,8 @@ func (a *Arbitray) platformInit() (err error) {
 }
 
 func open(path string) error {
-  return exec.Command("cmd", []string{"/c", "start", path}...).Start()
+  cmd := exec.Command("cmd", []string{"/c", "start", path}...)
+  cmd.SysProcAttr = &syscall.SysProcAttr{ HideWindow: true }
+  _, err := cmd.Output()
+  return err
 }
