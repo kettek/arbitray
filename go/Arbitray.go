@@ -8,6 +8,7 @@ import (
   "io"
   "os"
   "os/exec"
+  "syscall"
   "bufio"
   "log"
   "path"
@@ -22,9 +23,14 @@ type Arbitray struct {
 
 func (a *Arbitray) Init() (err error) {
   a.config.Load()
-  os.Mkdir("logs", 0755)
+  if err = os.Mkdir("logs", 0755); err != nil {
+    if (err.(*os.PathError)).Err != syscall.EEXIST {
+      dlgs.Error("Arbitray", err.Error())
+      log.Fatalf("Fatal Error: %v", err)
+    }
+  }
   // Create Arbitray's log
-  a.Log = log.New(nil, "[Arbitray]", log.LstdFlags)
+  a.Log = log.New(nil, "", log.LstdFlags)
   logFile, err := os.OpenFile(fmt.Sprintf("%s/%s.log", "logs", "Arbitray"), os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
   if err != nil {
     log.Fatal(err)
