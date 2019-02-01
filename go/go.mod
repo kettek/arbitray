@@ -1,4 +1,4 @@
-module github.com/kettek/arbitray-go
+module github.com/kettek/arbitray-go/go
 
 require (
 	github.com/cratonica/2goarray v0.0.0-20181003131821-6736de72d774 // indirect
