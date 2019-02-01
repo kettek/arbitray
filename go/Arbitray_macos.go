@@ -5,6 +5,7 @@ package main
 import (
   "os"
   "os/exec"
+  "syscall"
   "path/filepath"
 )
 
@@ -60,13 +61,22 @@ func (a *Arbitray) platformInit() (err error) {
 
 func (p *ArbitrayProgram) CreateCommand() (err error) {
   p.Cmd = exec.Command(p.Program)
-  if dir := filepath.Dir(p.Program); dir != "." {
-    p.Cmd.Dir = dir
+  if p.Options.CWD != "" {
+    p.Cmd.Dir = p.Options.CWD
+  } else {
+    if dir := filepath.Dir(p.Program); dir != "." {
+      p.Cmd.Dir = dir
+    }
   }
   p.Cmd.Args = append([]string{p.Program}, p.Arguments...)
 
   if p.Options.Hide {
   }
+  return
+}
+
+func (p *ArbitrayProgram) Kill() (err error) {
+  err = p.Cmd.Process.Signal(syscall.SIGINT)
   return
 }
 

@@ -163,8 +163,27 @@ func (a *Arbitray) startProgram(p *ArbitrayProgram) {
   // Set up our command.
   p.CreateCommand()
 
+  dlgs.Info("Dir", p.Cmd.Dir)
+
+  var stdinChan, stdoutChan, stderrChan chan string
+  // stdin
+  if p.Options.CloseCmd != "" {
+    stdinChan = make(chan string)
+    go func() {
+      stdin, err := p.Cmd.StdinPipe()
+      if err != nil {
+        a.Log.Printf("Uhoh, error getting stdin: %v\n", err)
+      }
+      for {
+        select {
+        case out := <-stdinChan:
+          io.WriteString(stdin, out)
+        }
+      }
+    }()
+  }
   // stdout
-  stdoutChan := make(chan string)
+  stdoutChan = make(chan string)
   go func() {
     stdout, err := p.Cmd.StdoutPipe()
     if err != nil {
@@ -183,7 +202,7 @@ func (a *Arbitray) startProgram(p *ArbitrayProgram) {
     }
   }()
   // stderr
-  stderrChan := make(chan string)
+  stderrChan = make(chan string)
   go func() {
     stderr, err := p.Cmd.StderrPipe()
     if err != nil {
@@ -228,9 +247,13 @@ func (a *Arbitray) startProgram(p *ArbitrayProgram) {
         fmt.Printf("[%s] %s", p.Title, msg)
         p.Log.Printf("Error: %s", msg)
       case <-p.KillChan:
-        if err := p.Cmd.Process.Signal(os.Kill); err != nil {
-          dlgs.Error("Arbitray", fmt.Sprintf("Failed to kill process:\n%v", err))
-          log.Fatalf("Fatal Error: %v", err)
+        if p.Options.CloseCmd != "" {
+          stdinChan <- p.Options.CloseCmd
+        } else {
+          if err := p.Kill(); err != nil {
+            dlgs.Error("Arbitray", fmt.Sprintf("Failed to kill process:\n%v", err))
+            log.Fatalf("Fatal Error: %v", err)
+          }
         }
       case <-p.CloseChan:
         break ListenLoop
