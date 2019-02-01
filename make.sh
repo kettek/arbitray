@@ -1,9 +1,6 @@
 #/bin/sh
 
-#if [ -z "$GOPATH" ]; then
-#  echo GOPATH environment variable not set
-#  exit
-#fi
+## Build icon
 
 if ! [ -x "$(command -v 2goarray)" ]; then
   echo "Installing 2goarray..."
@@ -23,4 +20,13 @@ if [ $? -ne 0 ]; then
   echo Failure generating $OUTPUT
   exit
 fi
+
+## Build arbitray
+
+cd go && go build -o ../arbitray && cd ..
+if [ $? -ne 0 ]; then
+  echo Failure building Arbitray
+  exit
+fi
+
 echo Finished
