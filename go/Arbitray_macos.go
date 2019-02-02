@@ -9,6 +9,13 @@ import (
   "path/filepath"
 )
 
+const (
+  CONFIG_STRING = "Edit"
+  RELOAD_STRING = "Reload"
+  LOGS_STRING = "Logs"
+  QUIT_STRING = "Quit"
+)
+
 func (c *ArbitrayConfig) generateDefault() (err error) {
   c.Programs = make([]*ArbitrayProgram, 1)
   c.Programs[0] = &ArbitrayProgram{

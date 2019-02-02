@@ -95,8 +95,8 @@ func (a *Arbitray) onReady() {
   }
   systray.AddSeparator()
   // Add our base items.
-  if !a.config.HideItems["Config"] {
-    mConfig := systray.AddMenuItem("✎ Config", "Config Arbitray")
+  if !a.config.HideItems[CONFIG_STRING] {
+    mConfig := systray.AddMenuItem(fmt.Sprintf("✎ %s", CONFIG_STRING), fmt.Sprintf("%s Arbitray", CONFIG_STRING))
     go func() {
       for {
         <-mConfig.ClickedCh
@@ -105,8 +105,8 @@ func (a *Arbitray) onReady() {
     }()
   }
 
-  if !a.config.HideItems["Reload"] {
-    mReload := systray.AddMenuItem("↺ Reload", "Reload Arbitray")
+  if !a.config.HideItems[RELOAD_STRING] {
+    mReload := systray.AddMenuItem(fmt.Sprintf("↺ %s", RELOAD_STRING), fmt.Sprintf("%s Arbitray (will stop running programs", RELOAD_STRING))
     go func() {
       for {
         <-mReload.ClickedCh
@@ -116,8 +116,8 @@ func (a *Arbitray) onReady() {
     }()
   }
 
-  if !a.config.HideItems["Logs"] {
-    mLogs := systray.AddMenuItem("☰ Logs", "Logs Arbitray")
+  if !a.config.HideItems[LOGS_STRING] {
+    mLogs := systray.AddMenuItem(fmt.Sprintf("☰ %s", LOGS_STRING), fmt.Sprintf("Open Arbitray's %s", LOGS_STRING))
     go func() {
       for {
         <-mLogs.ClickedCh
@@ -127,8 +127,8 @@ func (a *Arbitray) onReady() {
   }
 
   // I guess we'll allow hiding the Quit item.
-  if !a.config.HideItems["Quit"] {
-    mQuit := systray.AddMenuItem("☓ Quit", "Quit Arbitray")
+  if !a.config.HideItems[QUIT_STRING] {
+    mQuit := systray.AddMenuItem(fmt.Sprintf("☓ %s", QUIT_STRING), fmt.Sprintf("%s Arbitray", QUIT_STRING))
     go func() {
       for {
         <-mQuit.ClickedCh

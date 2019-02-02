@@ -9,12 +9,19 @@ import (
   "syscall"
 )
 
+const (
+  CONFIG_STRING = "Edit"
+  RELOAD_STRING = "Reload"
+  LOGS_STRING = "Logs"
+  QUIT_STRING = "Exit"
+)
+
 func (c *ArbitrayConfig) generateDefault() (err error) {
   c.Programs = make([]*ArbitrayProgram, 1)
   c.Programs[0] = &ArbitrayProgram{
-    Title: "MSConfig",
-    Tooltip: "Open MSConfig. Needs Admin",
-    Program: "C:\\Windows\\System32\\msconfig.exe",
+    Program: "explorer.exe",
+    Arguments: []string{"ms-screenclip:"},
+    Title: "Take Screenshot",
   }
   return
 }
