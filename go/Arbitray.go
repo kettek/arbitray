@@ -95,38 +95,47 @@ func (a *Arbitray) onReady() {
   }
   systray.AddSeparator()
   // Add our base items.
-  mConfig := systray.AddMenuItem("✎ Config", "Config Arbitray")
-  go func() {
-    for {
-      <-mConfig.ClickedCh
-      open("arbitray.json")
-    }
-  }()
+  if !a.config.HideItems["Config"] {
+    mConfig := systray.AddMenuItem("✎ Config", "Config Arbitray")
+    go func() {
+      for {
+        <-mConfig.ClickedCh
+        open("arbitray.json")
+      }
+    }()
+  }
 
-  mReload := systray.AddMenuItem("↺ Reload", "Reload Arbitray")
-  go func() {
-    for {
-      <-mReload.ClickedCh
-      a.shouldRestart = true
-      a.Quit()
-    }
-  }()
+  if !a.config.HideItems["Reload"] {
+    mReload := systray.AddMenuItem("↺ Reload", "Reload Arbitray")
+    go func() {
+      for {
+        <-mReload.ClickedCh
+        a.shouldRestart = true
+        a.Quit()
+      }
+    }()
+  }
 
-  mLogs := systray.AddMenuItem("☰ Logs", "Logs Arbitray")
-  go func() {
-    for {
-      <-mLogs.ClickedCh
-      openDir("logs")
-    }
-  }()
+  if !a.config.HideItems["Logs"] {
+    mLogs := systray.AddMenuItem("☰ Logs", "Logs Arbitray")
+    go func() {
+      for {
+        <-mLogs.ClickedCh
+        openDir("logs")
+      }
+    }()
+  }
 
-  mQuit := systray.AddMenuItem("☓ Quit", "Quit Arbitray")
-  go func() {
-    for {
-      <-mQuit.ClickedCh
-      a.Quit()
-    }
-  }()
+  // I guess we'll allow hiding the Quit item.
+  if !a.config.HideItems["Quit"] {
+    mQuit := systray.AddMenuItem("☓ Quit", "Quit Arbitray")
+    go func() {
+      for {
+        <-mQuit.ClickedCh
+        a.Quit()
+      }
+    }()
+  }
 }
 func (a *Arbitray) onQuit() {
   if a.shouldRestart {

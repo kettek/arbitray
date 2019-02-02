@@ -13,6 +13,7 @@ import (
 
 type ArbitrayConfig struct {
   Programs []*ArbitrayProgram `json:"programs,omitempty"`
+  HideItems map[string]bool `json:"hideItems,omitempty"`
 }
 
 func (c *ArbitrayConfig) Load() (err error) {
