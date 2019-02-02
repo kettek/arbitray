@@ -112,7 +112,7 @@ func (a *Arbitray) onReady() {
     }
   }()
 
-  mLogs := systray.AddMenuItem("📜 Logs", "Logs Arbitray")
+  mLogs := systray.AddMenuItem("☰ Logs", "Logs Arbitray")
   go func() {
     for {
       <-mLogs.ClickedCh
@@ -120,7 +120,7 @@ func (a *Arbitray) onReady() {
     }
   }()
 
-  mQuit := systray.AddMenuItem("💀 Quit", "Quit Arbitray")
+  mQuit := systray.AddMenuItem("☓ Quit", "Quit Arbitray")
   go func() {
     for {
       <-mQuit.ClickedCh
