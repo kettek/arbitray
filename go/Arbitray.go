@@ -163,8 +163,6 @@ func (a *Arbitray) startProgram(p *ArbitrayProgram) {
   // Set up our command.
   p.CreateCommand()
 
-  dlgs.Info("Dir", p.Cmd.Dir)
-
   var stdinChan, stdoutChan, stderrChan chan string
   // stdin
   if p.Options.CloseCmd != "" {
